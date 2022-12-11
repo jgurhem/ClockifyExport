@@ -60,6 +60,14 @@ parser = argparse.ArgumentParser(
     formatter_class=argparse.ArgumentDefaultsHelpFormatter,
 )
 parser.add_argument("token", help="User token for API authentication", type=str)
+parser.add_argument(
+    "-b",
+    "--include-not-billable",
+    dest="billable",
+    help="Include not billable entries in the output sheet",
+    action="store_true",
+    default=False,
+)
 args = parser.parse_args()
 
 headers = {
@@ -86,6 +94,10 @@ user = get_user_id(headers)
 for w in workspaces:
     for e in get_time_entries(headers, w, user, start, end):
         # print(json.dumps(e, indent=4))
+
+        billable = e["billable"]
+        if not args.billable and not billable:
+            continue
 
         proj = e["project"]["name"]
         tags = extract_tag_name(e)
