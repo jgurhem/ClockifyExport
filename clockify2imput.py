@@ -87,6 +87,8 @@ print()
 print()
 
 days = dict()
+projects = dict()
+total_work = timedelta()
 maxlenghtname = 0
 
 workspaces = get_workspace_ids(headers)
@@ -117,6 +119,12 @@ for w in workspaces:
         d[k] = v
         days[startdate.date()] = d
 
+        p = projects.get(proj, timedelta())
+        p += duration
+        projects[proj] = p
+
+        total_work += duration
+
 for k1 in days.keys().__reversed__():
     v1 = days[k1]
     print(k1, v1)
@@ -127,3 +135,10 @@ for k1 in days.keys().__reversed__():
     for k2, v2 in v1.items():
         print("\t", f"{k2:{maxlenghtname}s}", " --- ", f"{v2/sum:.2f}")
     print()
+
+print()
+print()
+print()
+
+for k, v in projects.items():
+    print(f"{k:{maxlenghtname}s}", " --- ", f"{v/total_work:.3f}")
