@@ -128,9 +128,9 @@ for w in workspaces:
         day_set.add(startdate.date())
         projects_set.add(k)
 
-        p = projects.get(proj, timedelta())
+        p = projects.get(k, timedelta())
         p += duration
-        projects[proj] = p
+        projects[k] = p
 
         total_work += duration
 
@@ -139,7 +139,7 @@ for k1 in days.keys().__reversed__():
     print(k1, v1)
     # sum = timedelta(hours=7.5)
     for k2, v2 in v1.items():
-        if k2 is 'Sum':
+        if k2 == 'Sum':
             continue
         print("\t", f"{k2:{maxlenghtname}s}", " --- ", f"{v2/v1['Sum']:.2f}")
     print()
@@ -164,5 +164,6 @@ print()
 print()
 print()
 
-for k, v in projects.items():
+for k in sorted(projects.keys()):
+    v = projects[k]
     print(f"{k:{maxlenghtname}s}", " --- ", f"{v/total_work:.3f}")
