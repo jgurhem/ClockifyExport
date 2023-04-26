@@ -152,12 +152,17 @@ day_set = sorted(day_set)
 print(f"{'':{maxlenghtname}s}", end='  ')
 for d in day_set:
     print(f"{d.day:6d}", end='')
+print(f"{'Sum':>7}", end='')
 print()
 print()
 for p in sorted(projects_set):
     print(f"{p:{maxlenghtname}s}", end='  ')
+    s = 0
     for d in day_set:
-        print(f"{int(days[d].get(p, timedelta(0))/days[d]['Sum']*100):6d}", end='')
+        t = int(days[d].get(p, timedelta(0))/days[d]['Sum']*100)
+        s += t
+        print(f"{t:6d}", end='')
+    print(f"{s:7d}", end='')
     print()
 
 print()
