@@ -3,6 +3,7 @@ import json
 from datetime import datetime, timedelta
 import calendar
 import argparse
+import itertools
 
 URL = "https://api.clockify.me/api/v1"
 
@@ -149,25 +150,26 @@ print()
 print()
 
 day_set = sorted(day_set)
-print(f"{'':{maxlenghtname}s}", end='  ')
-for d in day_set:
-    print(f"{d.day:6d}", end='')
-print(f"{'Sum':>7}", end='')
-print()
-print()
-for p in sorted(projects_set):
-    print(f"{p:{maxlenghtname}s}", end='  ')
-    s = 0
-    for d in day_set:
-        t = int(days[d].get(p, timedelta(0))/days[d]['Sum']*100)
-        s += t
-        print(f"{t:6d}", end='')
-    print(f"{s:7d}", end='')
+for key, group in itertools.groupby(day_set, key=lambda e : (e.year, e.month)):
+    group = list(group)
+    print(f"{'':{maxlenghtname}s}", end='  ')
+    for d in group:
+        print(f"{d.day:6d}", end='')
+    print(f"{'Sum':>7}", end='')
     print()
-
-print()
-print()
-print()
+    print()
+    for p in sorted(projects_set):
+        print(f"{p:{maxlenghtname}s}", end='  ')
+        s = 0
+        for d in group:
+            t = int(days[d].get(p, timedelta(0))/days[d]['Sum']*100)
+            s += t
+            print(f"{t:6d}", end='')
+        print(f"{s:7d}", end='')
+        print()
+    print()
+    print()
+    print()
 
 for k in sorted(projects.keys()):
     v = projects[k]
