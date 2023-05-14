@@ -69,6 +69,13 @@ parser.add_argument(
     action="store_true",
     default=False,
 )
+parser.add_argument(
+    "--show-per-day",
+    dest="perday",
+    help="Print daily timetable",
+    action="store_true",
+    default=False,
+)
 args = parser.parse_args()
 
 headers = {
@@ -135,24 +142,24 @@ for w in workspaces:
 
         total_work += duration
 
-for k1 in days.keys().__reversed__():
-    v1 = days[k1]
-    print(k1, v1)
-    # sum = timedelta(hours=7.5)
-    for k2, v2 in v1.items():
-        if k2 == 'Sum':
-            continue
-        print("\t", f"{k2:{maxlenghtname}s}", " --- ", f"{v2/v1['Sum']:.2f}")
+if args.perday:
+    for k1 in days.keys().__reversed__():
+        v1 = days[k1]
+        print(k1, v1)
+        # sum = timedelta(hours=7.5)
+        for k2, v2 in v1.items():
+            if k2 == 'Sum':
+                continue
+            print("\t", f"{k2:{maxlenghtname}s}", " --- ", f"{v2/v1['Sum']:.2f}")
+        print()
     print()
-
-print()
-print()
-print()
+    print()
+    print()
 
 day_set = sorted(day_set)
 for key, group in itertools.groupby(day_set, key=lambda e : (e.year, e.month)):
     group = list(group)
-    print(f"{'':{maxlenghtname}s}", end='  ')
+    print(f"{str(key):{maxlenghtname}s}", end='  ')
     for d in group:
         print(f"{d.day:6d}", end='')
     print(f"{'Sum':>7}", end='')
