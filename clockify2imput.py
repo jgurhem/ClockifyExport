@@ -204,4 +204,4 @@ for key, group in itertools.groupby(day_set, key=lambda e : (e.year, e.month)):
 
 for k in sorted(projects.keys()):
     v = projects[k]
-    print(f"{k:{maxlenghtname}s}", " --- ", f"{v/total_work:.3f}")
+    print(f"{k:{maxlenghtname}s}", " --- ", f"{v/total_work*100:=6.2f}")
