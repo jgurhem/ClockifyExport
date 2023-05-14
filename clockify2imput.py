@@ -76,6 +76,21 @@ parser.add_argument(
     action="store_true",
     default=False,
 )
+parser.add_argument(
+    "-s",
+    "--start-date",
+    dest="startdate",
+    help="Start date from which retrieve time entries",
+    default=None,
+)
+parser.add_argument(
+    "-e",
+    "--end-date",
+    dest="enddate",
+    help="End date to which retrieve time entries",
+    default=None,
+)
+
 args = parser.parse_args()
 
 headers = {
@@ -85,10 +100,18 @@ headers = {
 
 now = datetime.now()
 print("now", now)
-ndays = calendar.monthrange(now.year, now.month)[1]
 
-start = datetime(now.year, now.month, 1, 0, 0, 0)
-end = datetime(now.year, now.month, ndays, 23, 59, 59)
+if args.startdate == None:
+    start = datetime(now.year, now.month, 1, 0, 0, 0)
+else:
+    start = datetime.fromisoformat(args.startdate)
+
+if args.enddate == None:
+    ndays = calendar.monthrange(now.year, now.month)[1]
+    end = datetime(now.year, now.month, ndays, 23, 59, 59)
+else:
+    end = datetime.fromisoformat(args.enddate)
+
 print("From :", start, "to :", end)
 print()
 print()
