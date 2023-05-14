@@ -189,14 +189,15 @@ for key, group in itertools.groupby(day_set, key=lambda e : (e.year, e.month)):
     print()
     print()
     for p in sorted(projects_set):
-        print(f"{p:{maxlenghtname}s}", end='  ')
+        line = f"{p:{maxlenghtname}s}  "
         s = 0
         for d in group:
             t = int(days[d].get(p, timedelta(0))/days[d]['Sum']*100)
             s += t
-            print(f"{t:6d}", end='')
-        print(f"{s:7d}", end='')
-        print()
+            line += f"{t:6d}"
+        line += f"{s:7d}"
+        if s > 0:
+            print(line)
     print()
     print()
     print()
