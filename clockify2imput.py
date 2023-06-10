@@ -1,54 +1,10 @@
-import requests
 import json
-from datetime import datetime, timedelta
+from datetime import timedelta
 import dateutil.parser
 import itertools
 
 from modules.Parser import Parser
-
-URL = "https://api.clockify.me/api/v1"
-
-
-def get_workspace_ids(headers: dict):
-    resp = requests.get(URL + "/workspaces", headers=headers)
-    ids = list()
-    for workspace in resp.json():
-        ids.append(workspace["id"])
-    return ids
-
-
-def get_user_id(headers: dict):
-    resp = requests.get(URL + "/user", headers=headers)
-    return resp.json()["id"]
-
-
-def get_time_entries(
-    headers: dict,
-    workspace: str,
-    userid: str,
-    startdate: datetime,
-    enddate: datetime,
-    pagesize: int = 100,
-) -> list[dict]:
-    page = 1
-    read = 1
-
-    startdate_str = startdate.isoformat() + "Z"
-    enddate_str = enddate.isoformat() + "Z"
-
-    while read > 0:
-        resp = requests.get(
-            f"{URL}/workspaces/{workspace}/user/{userid}/time-entries?start={startdate_str}"
-            + f"&end={enddate_str}&page={page}&page-size={pagesize}&hydrated=true",
-            headers=headers,
-        )
-        page += 1
-
-        resp_json = resp.json()
-        read = len(resp_json)
-        for e in resp_json:
-            yield e
-
+from modules.Clockify import Clockify
 
 def extract_tag_name(entry: dict):
     tags = list()
@@ -59,15 +15,12 @@ def extract_tag_name(entry: dict):
 
 args = Parser()
 
-headers = {
-    "content-type": "application/json",
-    "X-Api-Key": args.token,
-}
-
 print("From :", args.startdate, "to :", args.enddate)
 print()
 print()
 print()
+
+clockify = Clockify(args.token)
 
 days = dict()
 projects = dict()
@@ -76,10 +29,8 @@ maxlenghtname = 0
 day_set = set()
 projects_set = set()
 
-workspaces = get_workspace_ids(headers)
-user = get_user_id(headers)
-for w in workspaces:
-    for e in get_time_entries(headers, w, user, args.startdate, args.enddate):
+for w in clockify.get_workspaces():
+    for e in clockify.get_time_entries(w, args.startdate, args.enddate):
         # print(json.dumps(e, indent=4))
 
         billable = e["billable"]
