@@ -1,8 +1,17 @@
 import argparse
+from datetime import datetime
+import dateutil.parser
+from calendar import monthrange
 
 
 class Parser:
     def __init__(self) -> None:
+
+        now = datetime.now()
+        ndays = monthrange(now.year, now.month)[1]
+        default_start = datetime(now.year, now.month, 1, 0, 0, 0)
+        default_end = datetime(now.year, now.month, ndays, 23, 59, 59)
+
         parser = argparse.ArgumentParser(
             description="Download the entries in Clockify to make timesheets for Aneo.",
             formatter_class=argparse.ArgumentDefaultsHelpFormatter,
@@ -28,19 +37,21 @@ class Parser:
             "--start-date",
             dest="startdate",
             help="Start date from which retrieve time entries",
-            default=None,
+            default=default_start,
+            type=dateutil.parser.isoparse,
         )
         parser.add_argument(
             "-e",
             "--end-date",
             dest="enddate",
             help="End date to which retrieve time entries",
-            default=None,
+            default=default_end,
+            type=dateutil.parser.isoparse,
         )
 
         args = parser.parse_args()
         self.token : str = args.token
         self.billable : bool = args.billable
         self.perday : bool = args.perday
-        self.startdate : str = args.startdate
-        self.enddate : str = args.enddate
+        self.startdate : datetime = args.startdate
+        self.enddate : datetime = args.enddate

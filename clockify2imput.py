@@ -1,7 +1,7 @@
 import requests
 import json
 from datetime import datetime, timedelta
-import calendar
+import dateutil.parser
 import itertools
 
 from modules.Parser import Parser
@@ -64,21 +64,7 @@ headers = {
     "X-Api-Key": args.token,
 }
 
-now = datetime.now()
-print("now", now)
-
-if args.startdate == None:
-    start = datetime(now.year, now.month, 1, 0, 0, 0)
-else:
-    start = datetime.fromisoformat(args.startdate)
-
-if args.enddate == None:
-    ndays = calendar.monthrange(now.year, now.month)[1]
-    end = datetime(now.year, now.month, ndays, 23, 59, 59)
-else:
-    end = datetime.fromisoformat(args.enddate)
-
-print("From :", start, "to :", end)
+print("From :", args.startdate, "to :", args.enddate)
 print()
 print()
 print()
@@ -93,7 +79,7 @@ projects_set = set()
 workspaces = get_workspace_ids(headers)
 user = get_user_id(headers)
 for w in workspaces:
-    for e in get_time_entries(headers, w, user, start, end):
+    for e in get_time_entries(headers, w, user, args.startdate, args.enddate):
         # print(json.dumps(e, indent=4))
 
         billable = e["billable"]
@@ -103,8 +89,8 @@ for w in workspaces:
         proj = e["project"]["name"]
         tags = extract_tag_name(e)
 
-        enddate = datetime.fromisoformat(e["timeInterval"]["end"].rstrip("Z"))
-        startdate = datetime.fromisoformat(e["timeInterval"]["start"].rstrip("Z"))
+        enddate = dateutil.parser.isoparse(e["timeInterval"]["end"])
+        startdate = dateutil.parser.isoparse(e["timeInterval"]["start"])
         duration = enddate - startdate
 
         d = days.get(startdate.date(), dict())
