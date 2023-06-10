@@ -1,3 +1,4 @@
+from .Entry import Entry
 import requests
 from datetime import datetime
 
@@ -34,7 +35,7 @@ class Clockify:
         startdate: datetime,
         enddate: datetime,
         pagesize: int = 100,
-    ) -> list[dict]:
+    ) -> list[Entry]:
         page = 1
         read = 1
 
@@ -52,4 +53,4 @@ class Clockify:
             resp_json = resp.json()
             read = len(resp_json)
             for e in resp_json:
-                yield e
+                yield Entry(e)

@@ -1,17 +1,8 @@
-import json
 from datetime import timedelta
-import dateutil.parser
 import itertools
 
 from modules.Parser import Parser
 from modules.Clockify import Clockify
-
-def extract_tag_name(entry: dict):
-    tags = list()
-    for t in entry["tags"]:
-        tags.append(t["name"])
-    return tags
-
 
 args = Parser()
 
@@ -31,42 +22,32 @@ projects_set = set()
 
 for w in clockify.get_workspaces():
     for e in clockify.get_time_entries(w, args.startdate, args.enddate):
-        # print(json.dumps(e, indent=4))
-
-        billable = e["billable"]
-        if not args.billable and not billable:
+        if not args.billable and not e.billable:
             continue
 
-        proj = e["project"]["name"]
-        tags = extract_tag_name(e)
-
-        enddate = dateutil.parser.isoparse(e["timeInterval"]["end"])
-        startdate = dateutil.parser.isoparse(e["timeInterval"]["start"])
-        duration = enddate - startdate
-
-        d = days.get(startdate.date(), dict())
-        if len(tags) == 0 or "Daily" in tags or "Entretien Technique" in tags:
-            k = proj
+        d = days.get(e.startdate.date(), dict())
+        if len(e.tags) == 0 or "Daily" in e.tags or "Entretien Technique" in e.tags:
+            k = e.project
         else:
-            k = proj + "___" + str(tags)
+            k = e.project + "___" + str(e.tags)
         maxlenghtname = max(maxlenghtname, len(k))
         v = d.get(k, timedelta())
-        v += duration
+        v += e.duration
         d[k] = v
 
         s = d.get("Sum", timedelta())
-        s += duration
+        s += e.duration
         d["Sum"] = s
-        days[startdate.date()] = d
+        days[e.startdate.date()] = d
 
-        day_set.add(startdate.date())
+        day_set.add(e.startdate.date())
         projects_set.add(k)
 
         p = projects.get(k, timedelta())
-        p += duration
+        p += e.duration
         projects[k] = p
 
-        total_work += duration
+        total_work += e.duration
 
 if args.perday:
     for k1 in days.keys().__reversed__():
