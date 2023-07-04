@@ -16,6 +16,15 @@ class Entry:
         self.startdate : datetime = dateutil.parser.isoparse(self.__entry["timeInterval"]["start"])
         self.duration : timedelta = self.enddate - self.startdate
 
+        self.task_id : str = ""
+        self.task_name : str = ""
+
+        if self.__entry["task"]:
+            if "id" in self.__entry["task"]:
+                self.task_id = self.__entry["task"]["id"]
+            if "name" in self.__entry["task"]:
+                self.task_name = self.__entry["task"]["name"]
+
         self.tags : list[str] = list()
         for t in self.__entry["tags"]:
             self.tags.append(t["name"])

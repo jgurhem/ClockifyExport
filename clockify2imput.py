@@ -26,10 +26,10 @@ for w in clockify.get_workspaces():
             continue
 
         d = days.get(e.startdate.date(), dict())
-        if len(e.tags) == 0 or "Daily" in e.tags or "Entretien Technique" in e.tags:
+        if e.task_name == "Daily" or e.task_name == "":
             k = e.project
         else:
-            k = e.project + "___" + str(e.tags)
+            k = e.project + "___" + e.task_name
         maxlenghtname = max(maxlenghtname, len(k))
         v = d.get(k, timedelta())
         v += e.duration
