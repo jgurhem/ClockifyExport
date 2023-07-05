@@ -3,6 +3,7 @@ import itertools
 
 from modules.Parser import Parser
 from modules.Clockify import Clockify
+from modules.utils import update_add
 
 args = Parser()
 
@@ -31,21 +32,14 @@ for w in clockify.get_workspaces():
         else:
             k = e.project + "___" + e.task_name
         maxlenghtname = max(maxlenghtname, len(k))
-        v = d.get(k, timedelta())
-        v += e.duration
-        d[k] = v
+        update_add(d, k, lambda x : x + e.duration, timedelta())
+        update_add(d, "Sum", lambda x : x + e.duration, timedelta())
+        update_add(projects, k, lambda x : x + e.duration, timedelta())
 
-        s = d.get("Sum", timedelta())
-        s += e.duration
-        d["Sum"] = s
         days[e.startdate.date()] = d
 
         day_set.add(e.startdate.date())
         projects_set.add(k)
-
-        p = projects.get(k, timedelta())
-        p += e.duration
-        projects[k] = p
 
         total_work += e.duration
 
