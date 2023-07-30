@@ -6,7 +6,6 @@ from calendar import monthrange
 
 class Parser:
     def __init__(self) -> None:
-
         now = datetime.now()
         ndays = monthrange(now.year, now.month)[1]
         default_start = datetime(now.year, now.month, 1, 0, 0, 0)
@@ -48,10 +47,21 @@ class Parser:
             default=default_end,
             type=dateutil.parser.isoparse,
         )
+        parser.add_argument(
+            "-t",
+            "--task-in-project",
+            dest="tasknames",
+            action="extend",
+            help="Tasks to count in project instead of a task",
+            default=[],
+            nargs="+",
+            type=str,
+        )
 
         args = parser.parse_args()
-        self.token : str = args.token
-        self.billable : bool = args.billable
-        self.perday : bool = args.perday
-        self.startdate : datetime = args.startdate
-        self.enddate : datetime = args.enddate
+        self.token: str = args.token
+        self.billable: bool = args.billable
+        self.perday: bool = args.perday
+        self.startdate: datetime = args.startdate
+        self.enddate: datetime = args.enddate
+        self.tasknames: list = args.tasknames

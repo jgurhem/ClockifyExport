@@ -28,7 +28,7 @@ for w in clockify.get_workspaces():
             continue
 
         d = days.get(e.startdate.date(), dict())
-        if e.task_name == "Daily" or e.task_name == "":
+        if e.task_name in args.tasknames or e.task_name == "":
             k = e.project
         else:
             k = e.project + "___" + e.task_name
