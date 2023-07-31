@@ -3,6 +3,7 @@ import itertools
 
 from modules.Parser import Parser
 from modules.Clockify import Clockify
+from modules.Summary import Summary
 from modules.utils import update_add
 
 args = Parser()
@@ -18,7 +19,6 @@ days = dict()
 projects = dict()
 total_work = timedelta()
 maxlenghtname = 0
-maxlenghtproject = 0
 day_set = set()
 projects_set = set()
 
@@ -34,7 +34,6 @@ for w in clockify.get_workspaces():
             k = e.project + "___" + e.task_name
 
         maxlenghtname = max(maxlenghtname, len(k))
-        maxlenghtproject = max(maxlenghtproject, len(e.project))
 
         update_add(d, k, lambda x : x + e.duration, timedelta())
         update_add(d, "Sum", lambda x : x + e.duration, timedelta())
@@ -84,16 +83,9 @@ for key, group in itertools.groupby(day_set, key=lambda e : (e.year, e.month)):
     print()
     print()
 
-for k in sorted(projects.keys()):
-    v = projects[k]
-    print(f"{k:{maxlenghtname}s}", " --- ", f"{v/total_work*100:=6.2f}")
-
+summary = Summary(projects, total_work)
+summary.print()
 print()
 print()
 print()
-
-for key, group in itertools.groupby(sorted(projects.keys()), key=lambda e : e.split("___")[0]):
-    v = timedelta()
-    for p in list(group):
-        v += projects[p]
-    print(f"{key:{maxlenghtproject}s}", " --- ", f"{v/total_work*100:=6.2f}")
+summary.print(lambda e : e.split("___")[0])
