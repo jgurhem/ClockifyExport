@@ -1,6 +1,6 @@
 import itertools
 from datetime import timedelta
-import texttable
+from texttable import Texttable
 
 
 class Summary:
@@ -9,7 +9,7 @@ class Summary:
         self.total_work = total_work
 
     def print(self, l=lambda x: x):
-        table = texttable.Texttable()
+        table = Texttable()
         table.set_cols_align(["l", "l"])
         table.header(["Project", "Percentage"])
 

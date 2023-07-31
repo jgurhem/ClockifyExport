@@ -1,7 +1,7 @@
-import texttable
 import itertools
 from datetime import timedelta
 import os
+from texttable import Texttable
 
 
 class TimeTable:
@@ -23,7 +23,7 @@ class TimeTable:
         for key, group in itertools.groupby(
             self.days_set, key=lambda e: (e.year, e.month)
         ):
-            table = texttable.Texttable(tsize.columns)
+            table = Texttable(tsize.columns)
             group = list(group)
             header = [key]
             align = ["l"]
