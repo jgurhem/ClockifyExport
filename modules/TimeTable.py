@@ -1,6 +1,7 @@
 import itertools
 from datetime import timedelta
 from .Table import Table
+import random
 
 
 class TimeTable:
@@ -15,9 +16,9 @@ class TimeTable:
         self.projects_set = set()
         self.projects_set.update(projects.keys())
         self.projects_set = sorted(self.projects_set)
+        random.seed(1)
 
     def print(self):
-
         for key, group in itertools.groupby(
             self.days_set, key=lambda e: (e.year, e.month)
         ):
@@ -33,6 +34,7 @@ class TimeTable:
             table.add_header(header)
             table.set_cols_align(align)
 
+            lines = []
             for p in sorted(self.projects_set):
                 line = [p]
                 s = 0
@@ -44,7 +46,34 @@ class TimeTable:
                     line.append(t)
                 line.append(s)
                 if s > 0:
-                    table.add_row(line)
+                    lines.append(line)
+
+            total = self.__compute_total__(lines, len(group), "Total (debug)")
+
+            # randomly adjust values so that total per column is 100
+            for i in range(1, len(group) + 1):
+                if total[i] == 100:
+                    continue
+                count = 0
+                indexes = list()
+                for j in range(len(lines)):
+                    if lines[j][i] > 0:
+                        count += 1
+                        indexes.append(j)
+                for j in random.sample(indexes, 100 - total[i]):
+                    lines[j][i] += 1
+                    lines[j][len(group) + 1] += 1
+
+            for l in lines:
+                table.add_row(l)
             print()
             print()
             print(table.draw())
+
+    def __compute_total__(self, lines, days, name):
+        total = [name]
+        for i in range(1, days + 2):
+            total.append(0)
+            for j in range(len(lines)):
+                total[i] += lines[j][i]
+        return total
