@@ -1,7 +1,6 @@
 import itertools
 from datetime import timedelta
-import os
-from texttable import Texttable
+from .Table import Table
 
 
 class TimeTable:
@@ -18,12 +17,11 @@ class TimeTable:
         self.projects_set = sorted(self.projects_set)
 
     def print(self):
-        tsize = os.get_terminal_size()
 
         for key, group in itertools.groupby(
             self.days_set, key=lambda e: (e.year, e.month)
         ):
-            table = Texttable(tsize.columns)
+            table = Table()
             group = list(group)
             header = [key]
             align = ["l"]
@@ -32,7 +30,7 @@ class TimeTable:
                 align.append("r")
             header.append("Sum")
             align.append("r")
-            table.header(header)
+            table.add_header(header)
             table.set_cols_align(align)
 
             for p in sorted(self.projects_set):

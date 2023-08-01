@@ -1,6 +1,6 @@
 import itertools
 from datetime import timedelta
-from texttable import Texttable
+from .Table import Table
 
 
 class Summary:
@@ -9,9 +9,9 @@ class Summary:
         self.total_work = total_work
 
     def print(self, l=lambda x: x):
-        table = Texttable()
+        table = Table()
         table.set_cols_align(["l", "l"])
-        table.header(["Project", "Percentage"])
+        table.add_header(["Project", "Percentage"])
 
         for key, group in itertools.groupby(sorted(self.projects.keys()), key=l):
             v = timedelta()
