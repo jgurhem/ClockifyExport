@@ -57,6 +57,18 @@ class Parser:
             nargs="+",
             type=str,
         )
+        parser.add_argument(
+            "-r",
+            "--rename-project",
+            dest="projects_rename",
+            action="append",
+            help="Projects to rename (also allows to merge two projects)",
+            default=[],
+            nargs=2,
+            type=str,
+            metavar=("OLD_NAME", "NEW_NAME"),
+        )
+
 
         args = parser.parse_args()
         self.token: str = args.token
@@ -65,3 +77,6 @@ class Parser:
         self.startdate: datetime = args.startdate
         self.enddate: datetime = args.enddate
         self.tasknames: list = args.tasknames
+        self.projects_rename: dict = dict()
+        for p in args.projects_rename:
+            self.projects_rename[p[0]] = p[1]

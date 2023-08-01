@@ -24,10 +24,11 @@ for w in clockify.get_workspaces():
             continue
 
         d = days.get(e.startdate.date(), dict())
+        project = args.projects_rename.get(e.project, e.project)
         if e.task_name in args.tasknames or e.task_name == "":
-            k = e.project
+            k = project
         else:
-            k = e.project + "___" + e.task_name
+            k = project + "___" + e.task_name
 
         update_add(d, k, lambda x : x + e.duration, timedelta())
         update_add(d, "Sum", lambda x : x + e.duration, timedelta())
