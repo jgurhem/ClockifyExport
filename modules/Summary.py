@@ -10,8 +10,8 @@ class Summary:
 
     def print(self, l=lambda x: x):
         table = Table()
-        table.set_cols_align(["l", "l"])
         table.add_header(["Project", "Percentage"])
+        table.set_cols_align(["l", "c"])
 
         for key, group in itertools.groupby(sorted(self.projects.keys()), key=l):
             v = timedelta()
