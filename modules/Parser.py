@@ -68,6 +68,20 @@ class Parser:
             type=str,
             metavar=("OLD_NAME", "NEW_NAME"),
         )
+        parser.add_argument(
+            "--export",
+            dest="export",
+            help="Export in CSV",
+            action="store_true",
+            default=False,
+        )
+        parser.add_argument(
+            "--export-dir",
+            dest="export_dir",
+            help="Directory in which the CSV files will be created",
+            default="./exports",
+            type=str,
+        )
 
 
         args = parser.parse_args()
@@ -77,6 +91,8 @@ class Parser:
         self.startdate: datetime = args.startdate
         self.enddate: datetime = args.enddate
         self.tasknames: list = args.tasknames
+        self.export: bool = args.export
+        self.export_dir: str = args.export_dir
         self.projects_rename: dict = dict()
         for p in args.projects_rename:
             self.projects_rename[p[0]] = p[1]

@@ -60,3 +60,5 @@ summary.print(lambda e : e.split("___")[0])
 
 ttable = TimeTable(days, projects)
 ttable.print()
+if args.export:
+    ttable.export_csv(args.export_dir)

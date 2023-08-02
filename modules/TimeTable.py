@@ -2,6 +2,9 @@ import itertools
 from datetime import timedelta
 from .Table import Table
 import random
+import os.path
+import csv
+import json
 
 
 class TimeTable:
@@ -71,6 +74,29 @@ class TimeTable:
             print()
             print()
             print(table.draw())
+
+    def export_csv(self, export_dir="./exports"):
+        TimeTable.__validate_export_dir(export_dir)
+        for key, lines in self.tables.items():
+            name = str(key)
+            if type(key) is tuple:
+                name = "_".join([str(k) for k in key])
+            with open(f"{export_dir}/{name}.csv", "w") as f:
+                writer = csv.writer(f)
+                writer.writerows(lines)
+
+    def export_json(self, export_dir="./exports"):
+        TimeTable.__validate_export_dir(export_dir)
+        with open(f"{export_dir}/export.json", "w") as f:
+            json.dump(dict([(str(k), v) for k, v in self.tables.items()]), f, indent=2)
+
+    def __validate_export_dir(export_dir):
+        if os.path.isdir(export_dir):
+            pass
+        else:
+            os.makedirs(export_dir, exist_ok=True)
+        if os.path.exists(export_dir) and not os.path.isdir(export_dir):
+            raise Exception(f"{export_dir} already exists and is not a directory")
 
     def __compute_total__(self, lines, days, name):
         total = [name]
