@@ -18,23 +18,19 @@ class TimeTable:
         self.projects_set = sorted(self.projects_set)
         random.seed(1)
 
-    def print(self):
+        self.tables: dict = dict()
+
         for key, group in itertools.groupby(
             self.days_set, key=lambda e: (e.year, e.month)
         ):
-            table = Table()
             group = list(group)
             header = [key]
-            align = ["l"]
             for d in group:
                 header.append(f"{d.day:3d}")
-                align.append("r")
             header.append("Sum")
-            align.append("r")
-            table.add_header(header)
-            table.set_cols_align(align)
 
-            lines = []
+            lines = [header]
+            self.tables[key] = lines
             for p in sorted(self.projects_set):
                 line = [p]
                 s = 0
@@ -56,7 +52,8 @@ class TimeTable:
                     continue
                 count = 0
                 indexes = list()
-                for j in range(len(lines)):
+                # starts from 1 to ignore header
+                for j in range(1, len(lines)):
                     if lines[j][i] > 0:
                         count += 1
                         indexes.append(j)
@@ -64,7 +61,12 @@ class TimeTable:
                     lines[j][i] += 1
                     lines[j][len(group) + 1] += 1
 
-            for l in lines:
+    def print(self):
+        for lines in self.tables.values():
+            table = Table()
+            table.add_header(lines[0])
+            table.set_cols_align(["l"] + ["r"] * (len(lines[0]) - 1))
+            for l in lines[1:]:
                 table.add_row(l)
             print()
             print()
@@ -74,6 +76,6 @@ class TimeTable:
         total = [name]
         for i in range(1, days + 2):
             total.append(0)
-            for j in range(len(lines)):
+            for j in range(1, len(lines)):
                 total[i] += lines[j][i]
         return total
