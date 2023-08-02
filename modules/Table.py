@@ -22,7 +22,11 @@ class Table:
         self.table.add_row(row)
 
     def set_cols_align(self, align):
+        self.table.set_header_align(align)
         self.table.set_cols_align(align)
+
+    def set_cols_width(self, widths):
+        self.table.set_cols_width(widths)
 
     def draw(self) -> str:
         return self.table.draw()

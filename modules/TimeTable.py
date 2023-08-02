@@ -29,7 +29,7 @@ class TimeTable:
             group = list(group)
             header = [key]
             for d in group:
-                header.append(f"{d.day:3d}")
+                header.append(d.day)
             header.append("Sum")
 
             lines = [header]
@@ -69,6 +69,14 @@ class TimeTable:
             table = Table()
             table.add_header(lines[0])
             table.set_cols_align(["l"] + ["r"] * (len(lines[0]) - 1))
+
+            size_col_first=0
+            size_col_sum=0
+            for l in lines:
+                size_col_first = max(size_col_first, len(str(l[0])))
+                size_col_sum = max(size_col_sum, len(str(l[len(lines[0]) - 1])))
+            table.set_cols_width([size_col_first] + [3] * (len(lines[0]) - 2) + [size_col_sum])
+
             for l in lines[1:]:
                 table.add_row(l)
             print()
