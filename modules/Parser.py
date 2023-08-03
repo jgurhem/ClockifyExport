@@ -69,7 +69,7 @@ class Parser:
             "--rename-project",
             dest="projects_rename",
             action="append",
-            help="Projects to rename (also allows to merge two projects)",
+            help="Projects to rename during entries processing (also allows to merge two projects)",
             default=[],
             nargs=2,
             type=str,
@@ -89,7 +89,16 @@ class Parser:
             default="./exports",
             type=str,
         )
-
+        parser.add_argument(
+            "-R",
+            dest="rename_export",
+            action="append",
+            help="Projects+tasks to rename during export only",
+            default=[],
+            nargs=2,
+            type=str,
+            metavar=("OLD_NAME", "NEW_NAME"),
+        )
 
         args = parser.parse_args()
         self.token: str = args.token
@@ -100,6 +109,9 @@ class Parser:
         self.tasknames: list = args.tasknames
         self.export: bool = args.export
         self.export_dir: str = args.export_dir
+        self.rename_export: dict = dict()
+        for p in args.rename_export:
+            self.rename_export[p[0]] = p[1]
         self.projects_rename: dict = dict()
         for p in args.projects_rename:
             self.projects_rename[p[0]] = p[1]
