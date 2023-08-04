@@ -8,17 +8,19 @@ import json
 
 
 class TimeTable:
-    def __init__(self, days: dict, projects: dict) -> None:
+    def __init__(self, days: dict) -> None:
         self.days: dict = days
-        self.projects: dict = projects
 
         self.days_set = set()
         self.days_set.update(days.keys())
         self.days_set = sorted(self.days_set)
 
         self.projects_set = set()
-        self.projects_set.update(projects.keys())
+        for v in days.values():
+            self.projects_set.update(v.keys())
+        self.projects_set.remove("Sum")
         self.projects_set = sorted(self.projects_set)
+
         random.seed(1)
 
         self.tables: dict = dict()
