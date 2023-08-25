@@ -94,7 +94,10 @@ class TimeTable:
             with open(f"{export_dir}/{name}.csv", "w") as f:
                 writer = csv.writer(f)
                 for l in lines:
-                    writer.writerow([renames.get(l[0], l[0])] + l[1:])
+                    l0 = l[0]
+                    if type(l0) is tuple:
+                        l0 = "_".join([str(k) for k in key])
+                    writer.writerow([renames.get(l0, l0)] + l[1:])
 
     def export_json(self, export_dir="./exports"):
         TimeTable.__validate_export_dir(export_dir)
