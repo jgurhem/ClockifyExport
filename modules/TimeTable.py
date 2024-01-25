@@ -1,5 +1,6 @@
 import itertools
-from datetime import timedelta
+from datetime import datetime
+
 from .Table import Table
 import random
 import os.path
@@ -7,52 +8,84 @@ import csv
 import json
 
 
+def project_name(project, task):
+    if task:
+        return f"{project}___{task}"
+    else:
+        return project
+
+
 class TimeTable:
-    def __init__(self, days: dict) -> None:
-        self.days: dict = days
-
-        self.days_set = set()
-        self.days_set.update(days.keys())
-        self.days_set = sorted(self.days_set)
-
+    def __init__(self, day, ptday) -> None:
         self.projects_set = set()
-        for v in days.values():
-            self.projects_set.update(v.keys())
-        self.projects_set.remove("Sum")
-        self.projects_set = sorted(self.projects_set)
+        for e in ptday:
+            self.projects_set.add(project_name(e[1], e[2]))
+        self.day = dict()
+        for el in day:
+            self.day[el[0]] = el[1]
 
         random.seed(1)
 
         self.tables: dict = dict()
 
         for key, group in itertools.groupby(
-            self.days_set, key=lambda e: (e.year, e.month)
+            ptday, key=lambda e: (e[0].year, e[0].month)
         ):
             group = list(group)
-            header = [key]
-            for d in group:
-                header.append(d.day)
-            header.append("Sum")
+            days = set()
+            pos_days = dict()
+            # create association between date and its position in the array
+            for el in group:
+                days.add(el[0].day)
+            i = 0
+            for el in days:
+                pos_days[el] = i
+                i = i + 1
 
+            header = [key]
+            header.extend(sorted(days))
+            header.append("Sum")
             lines = [header]
             self.tables[key] = lines
+            # create empty table and association between project and its
+            # position in the rows of the table
+            pos_project = dict()
+            i = 0
             for p in sorted(self.projects_set):
-                line = [p]
-                s = 0
-                for d in group:
-                    t = int(
-                        self.days[d].get(p, timedelta(0)) / self.days[d]["Sum"] * 100
-                    )
-                    s += t
-                    line.append(t)
-                line.append(s)
-                if s > 0:
-                    lines.append(line)
+                lines.append([p] + [0] * (len(days) + 1))
+                pos_project[p] = i
+                i = i + 1
 
-            total = self.__compute_total__(lines, len(group), "Total (debug)")
+            # add values into the table
+            for el in group:
+                date = el[0]
+                p = project_name(el[1], el[2])
+                lines[pos_project[p] + 1][pos_days[date.day] + 1] += el[3]
+
+            # compute percentage between projects and total values each day
+            for i in range(1, len(days) + 1):
+                for j in range(1, len(lines)):
+                    if lines[j][i] > 0:
+                        lines[j][i] = int(lines[j][i] / self.day[datetime(key[0], key[1], lines[0][i]).date()] * 100)
+
+            # compute total for each row
+            for i in range(1, len(days) + 1):
+                for j in range(1, len(lines)):
+                    if lines[j][i] > 0:
+                        lines[j][len(days) + 1] += lines[j][i]
+
+            # remove empty lines
+            newlines=[header]
+            for j in range(1, len(lines)):
+                if lines[j][len(days) + 1] > 0:
+                    newlines.append(lines[j])
+            lines = newlines
+            self.tables[key] = newlines
+
+            total = self.__compute_total__(lines, len(days), "Total (debug)")
 
             # randomly adjust values so that total per column is 100
-            for i in range(1, len(group) + 1):
+            for i in range(1, len(days) + 1):
                 if total[i] == 100:
                     continue
                 count = 0
@@ -64,7 +97,7 @@ class TimeTable:
                         indexes.append(j)
                 for j in random.sample(indexes, 100 - total[i]):
                     lines[j][i] += 1
-                    lines[j][len(group) + 1] += 1
+                    lines[j][len(days) + 1] += 1
 
     def print(self):
         for lines in self.tables.values():
@@ -72,12 +105,14 @@ class TimeTable:
             table.add_header(lines[0])
             table.set_cols_align(["l"] + ["r"] * (len(lines[0]) - 1))
 
-            size_col_first=0
-            size_col_sum=0
+            size_col_first = 0
+            size_col_sum = 0
             for l in lines:
                 size_col_first = max(size_col_first, len(str(l[0])))
                 size_col_sum = max(size_col_sum, len(str(l[len(lines[0]) - 1])))
-            table.set_cols_width([size_col_first] + [3] * (len(lines[0]) - 2) + [size_col_sum])
+            table.set_cols_width(
+                [size_col_first] + [3] * (len(lines[0]) - 2) + [size_col_sum]
+            )
 
             for l in lines[1:]:
                 table.add_row(l)

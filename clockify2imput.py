@@ -1,4 +1,5 @@
 from datetime import timedelta
+from modules.Database import Database
 
 from modules.Parser import Parser
 from modules.Clockify import Clockify
@@ -17,9 +18,11 @@ clockify = Clockify(args.token)
 days = dict()
 projects = dict()
 total_work = timedelta()
+db = Database()
 
 for w in clockify.get_workspaces():
     for e in clockify.get_time_entries(w, args.startdate, args.enddate):
+        db.add_entry(e)
         if not args.billable and not e.billable:
             continue
 
@@ -58,7 +61,14 @@ print()
 print()
 summary.print(lambda e : e.split("___")[0])
 
-ttable = TimeTable(days)
+list_day = db.list_day_total(args.startdate, args.enddate)
+list_ptday = db.list_projects_tasks_time(args.startdate, args.enddate)
+list_ptday_renamed = []
+
+for x in list_ptday:
+    list_ptday_renamed.append((x[0], args.projects_rename.get(x[1], x[1]), x[2] if x[2] not in args.tasknames else None, x[3]))
+
+ttable = TimeTable(list_day, list_ptday_renamed)
 ttable.print()
 if args.export:
     ttable.export_csv(args.export_dir, args.rename_export)
