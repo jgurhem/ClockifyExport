@@ -23,7 +23,7 @@ class Summary:
             total_work += el[3]
 
         agg = dict()
-        for key, group in itertools.groupby(sorted(self.ptday), key=l):
+        for key, group in itertools.groupby(sorted(self.ptday, key=l), key=l):
             v = agg.get(key,0)
             group = list(group)
             for p in group:

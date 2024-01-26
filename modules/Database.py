@@ -115,25 +115,30 @@ class Database:
         self.session.add(entry_db)
         self.session.commit()
 
-    def list_projects_tasks_time(self, start, end):
+    def list_projects_tasks_time(self, start, end, include_ignored=False, include_not_billable=False):
+        stmt = select((Entry.start_date, Project.name, Task.name, sum(Entry.duration)))
+        if not include_ignored:
+            stmt = stmt.where(Entry.ignore == False)
+        if not include_not_billable:
+            stmt = stmt.where(Entry.billable == True)
         stmt = (
-            select((Entry.start_date, Project.name, Task.name, sum(Entry.duration)))
-            .where(Entry.ignore == False)
-            .where(Entry.billable == True)
-            .where(Entry.start_datetime >= start)
+            stmt.where(Entry.start_datetime >= start)
             .where(Entry.end_datetime <= end)
             .join(Entry.task, full=True)
             .join(Entry.project)
             .group_by(Entry.start_date, Project.name, Task.name)
         )
+
         return list(self.session.execute(stmt))
 
-    def list_day_total(self, start, end):
+    def list_day_total(self, start, end, include_ignored=False, include_not_billable=False):
+        stmt = select((Entry.start_date, sum(Entry.duration)))
+        if not include_ignored:
+            stmt = stmt.where(Entry.ignore == False)
+        if not include_not_billable:
+            stmt = stmt.where(Entry.billable == True)
         stmt = (
-            select((Entry.start_date, sum(Entry.duration)))
-            .where(Entry.ignore == False)
-            .where(Entry.billable == True)
-            .where(Entry.start_datetime >= start)
+            stmt.where(Entry.start_datetime >= start)
             .where(Entry.end_datetime <= end)
             .join(Entry.task, full=True)
             .join(Entry.project)
