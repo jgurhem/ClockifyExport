@@ -3,20 +3,34 @@ from datetime import timedelta
 from .Table import Table
 
 
-class Summary:
-    def __init__(self, projects, total_work) -> None:
-        self.projects = projects
-        self.total_work = total_work
+def project_name(project, task):
+    if task:
+        return f"{project}___{task}"
+    else:
+        return project
 
-    def print(self, l=lambda x: x):
+class Summary:
+    def __init__(self, ptday) -> None:
+        self.ptday = ptday
+
+    def print(self, l=lambda x: project_name(x[1], x[2])):
         table = Table()
         table.add_header(["Project", "Percentage"])
         table.set_cols_align(["l", "c"])
 
-        for key, group in itertools.groupby(sorted(self.projects.keys()), key=l):
-            v = timedelta()
-            for p in list(group):
-                v += self.projects[p]
-            table.add_row([key, f"{v/self.total_work*100:=6.2f}"])
+        total_work = 0
+        for el in self.ptday:
+            total_work += el[3]
+
+        agg = dict()
+        for key, group in itertools.groupby(sorted(self.ptday), key=l):
+            v = agg.get(key,0)
+            group = list(group)
+            for p in group:
+                v += p[3]
+            agg[key] = v
+
+        for key in sorted(agg):
+            table.add_row([key, f"{agg[key]/total_work*100:=6.2f}"])
 
         print(table.draw())
