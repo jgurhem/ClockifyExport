@@ -113,6 +113,8 @@ class Database:
         entry_db.ignore = "Ignore" in entry.tags
 
         self.session.add(entry_db)
+
+    def finalize(self):
         self.session.commit()
 
     def list_projects_tasks_time(self, start, end, include_ignored=False, include_not_billable=False):
