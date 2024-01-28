@@ -65,7 +65,7 @@ class Task(Base):
 
 class Database:
     def __init__(self) -> None:
-        engine = create_engine("sqlite:///entries.db")
+        engine = create_engine("sqlite:///:memory:")
         Session = sessionmaker()
         Session.configure(bind=engine)
         self.session = Session()
