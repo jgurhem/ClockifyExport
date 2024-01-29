@@ -1,4 +1,5 @@
 from datetime import timedelta
+from modules.Renamer import Renamer
 from modules.Database import Database
 
 from modules.Parser import Parser
@@ -31,8 +32,10 @@ list_day = db.list_day_total(args.startdate, args.enddate, include_not_billable=
 list_ptday = db.list_projects_tasks_time(args.startdate, args.enddate, include_not_billable=args.billable)
 list_ptday_renamed = []
 
+renamer = Renamer(args.projects_rename, args.tasknames)
 for x in list_ptday:
-    list_ptday_renamed.append((x[0], args.projects_rename.get(x[1], x[1]), x[2] if x[2] not in args.tasknames else None, x[3]))
+    pn = renamer.rename(x[1], x[2])
+    list_ptday_renamed.append((x[0], pn[0], pn[1], x[3]))
 
 summary = Summary(list_ptday_renamed)
 summary.print()
