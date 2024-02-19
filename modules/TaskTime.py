@@ -8,7 +8,7 @@ class TaskTime:
         self.date = date
         self.duration = duration
 
-    def getFullName(self):
+    def getFullName(self) -> str:
         if self.task:
             return f"{self.project}___{self.task}"
         else:
