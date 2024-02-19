@@ -34,14 +34,13 @@ list_ptday_renamed = []
 
 renamer = Renamer(args.projects_rename, args.tasknames)
 for x in list_ptday:
-    pn = renamer.rename(x[1], x[2])
-    list_ptday_renamed.append((x[0], pn[0], pn[1], x[3]))
+    list_ptday_renamed.append(renamer.rename(x))
 
 summary = Summary(list_ptday_renamed)
 summary.print()
 print()
 print()
-summary.print(lambda e : e[1])
+summary.print(lambda e : e.project)
 print()
 print()
 Summary(list_ptday).print()

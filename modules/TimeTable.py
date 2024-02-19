@@ -1,42 +1,36 @@
 import itertools
 from datetime import datetime
 
+from modules.TaskTime import TaskTime
+
 from .Table import Table
 import random
 import os.path
 import csv
 import json
 
-
-def project_name(project, task):
-    if task:
-        return f"{project}___{task}"
-    else:
-        return project
-
-
 class TimeTable:
-    def __init__(self, day, ptday) -> None:
+    def __init__(self, day: list[TaskTime], ptday: list[TaskTime]) -> None:
         self.projects_set = set()
         for e in ptday:
-            self.projects_set.add(project_name(e[1], e[2]))
+            self.projects_set.add(e.getFullName())
         self.day = dict()
         for el in day:
-            self.day[el[0]] = el[1]
+            self.day[el.date] = el.duration
 
         random.seed(1)
 
         self.tables: dict = dict()
 
         for key, group in itertools.groupby(
-            ptday, key=lambda e: (e[0].year, e[0].month)
+            ptday, key=lambda e: (e.date.year, e.date.month)
         ):
             group = list(group)
             days = set()
             pos_days = dict()
             # create association between date and its position in the array
             for el in group:
-                days.add(el[0].day)
+                days.add(el.date.day)
             i = 0
             for el in days:
                 pos_days[el] = i
@@ -58,9 +52,9 @@ class TimeTable:
 
             # add values into the table
             for el in group:
-                date = el[0]
-                p = project_name(el[1], el[2])
-                lines[pos_project[p] + 1][pos_days[date.day] + 1] += el[3]
+                date = el.date
+                p = el.getFullName()
+                lines[pos_project[p] + 1][pos_days[date.day] + 1] += el.duration
 
             # compute percentage between projects and total values each day
             for i in range(1, len(days) + 1):
