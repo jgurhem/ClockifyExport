@@ -120,7 +120,7 @@ class Database:
         self.session.commit()
 
     def list_projects_tasks_time(self, start, end, include_ignored=False, include_not_billable=False) -> list[TaskTime]:
-        stmt = select((Project.name, Task.name, Entry.start_date, sum(Entry.duration)))
+        stmt = select(Project.name, Task.name, Entry.start_date, sum(Entry.duration))
         if not include_ignored:
             stmt = stmt.where(Entry.ignore == False)
         if not include_not_billable:
@@ -136,7 +136,7 @@ class Database:
         return [TaskTime(result[0], result[1], result[2], result[3]) for result in self.session.execute(stmt)]
 
     def list_day_total(self, start, end, include_ignored=False, include_not_billable=False) -> list[TaskTime]:
-        stmt = select((Entry.start_date, sum(Entry.duration)))
+        stmt = select(Entry.start_date, sum(Entry.duration))
         if not include_ignored:
             stmt = stmt.where(Entry.ignore == False)
         if not include_not_billable:
