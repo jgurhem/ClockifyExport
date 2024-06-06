@@ -7,7 +7,10 @@ import shlex
 
 class MultiLignArgumentParser(argparse.ArgumentParser):
     def convert_arg_line_to_args(self, arg_line):
-        return shlex.split(arg_line)
+        args = shlex.split(arg_line)
+        if len(args) > 0 and args[0].startswith("#"):
+            return []
+        return args
 
 
 class Parser:
