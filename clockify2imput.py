@@ -28,8 +28,8 @@ for w in clockify.get_workspaces():
         db.add_entry(e)
 db.finalize()
 
-list_day = db.list_day_total(args.startdate, args.enddate, include_not_billable=args.billable)
-list_ptday = db.list_projects_tasks_time(args.startdate, args.enddate, include_not_billable=args.billable)
+list_day = db.list_day_total(args.startdate, args.enddate, args.ignored_projects, include_not_billable=args.billable)
+list_ptday = db.list_projects_tasks_time(args.startdate, args.enddate, args.ignored_projects, include_not_billable=args.billable)
 list_ptday_renamed = []
 
 renamer = Renamer(args.projects_rename, args.tasknames)

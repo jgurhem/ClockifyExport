@@ -1,8 +1,11 @@
+from datetime import date
+from typing import Tuple
 from modules.Entry import Entry as EntryData
 
 from sqlalchemy import (
     Column,
     Integer,
+    Select,
     String,
     ForeignKey,
     Boolean,
@@ -11,6 +14,9 @@ from sqlalchemy import (
     DateTime,
     Date,
     select,
+    or_,
+    and_,
+    not_
 )
 from sqlalchemy.orm import relationship, backref, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
@@ -119,7 +125,21 @@ class Database:
     def finalize(self):
         self.session.commit()
 
-    def list_projects_tasks_time(self, start, end, include_ignored=False, include_not_billable=False) -> list[TaskTime]:
+    def __create_clause(tp: str):
+        s = tp.split("___")
+        if len(s) == 1:
+            return and_(Project.name == s[0])
+        else:
+            return and_(Project.name == s[0], Task.name == s[1])
+
+    def __ignore_clause(stmt: Select[Tuple[str, str, date, int]], ignore:list[str]):
+        if len(ignore) == 0:
+            return stmt
+        else:
+            return stmt.where(not_(or_(*[Database.__create_clause(i) for i in ignore])))
+
+
+    def list_projects_tasks_time(self, start, end, ignore:list[str], include_ignored=False, include_not_billable=False) -> list[TaskTime]:
         stmt = select(Project.name, Task.name, Entry.start_date, sum(Entry.duration))
         if not include_ignored:
             stmt = stmt.where(Entry.ignore == False)
@@ -132,10 +152,11 @@ class Database:
             .join(Entry.project)
             .group_by(Entry.start_date, Project.name, Task.name)
         )
+        stmt = Database.__ignore_clause(stmt, ignore)
 
         return [TaskTime(result[0], result[1], result[2], result[3]) for result in self.session.execute(stmt)]
 
-    def list_day_total(self, start, end, include_ignored=False, include_not_billable=False) -> list[TaskTime]:
+    def list_day_total(self, start, end, ignore:list[str], include_ignored=False, include_not_billable=False) -> list[TaskTime]:
         stmt = select(Entry.start_date, sum(Entry.duration))
         if not include_ignored:
             stmt = stmt.where(Entry.ignore == False)
@@ -148,4 +169,6 @@ class Database:
             .join(Entry.project)
             .group_by(Entry.start_date)
         )
+        stmt = Database.__ignore_clause(stmt, ignore)
+
         return [TaskTime(None, None, result[0], result[1]) for result in self.session.execute(stmt)]

@@ -68,6 +68,16 @@ class Parser:
             type=str,
         )
         parser.add_argument(
+            "-I",
+            "--ignore-project",
+            dest="ignored_projects",
+            action="extend",
+            help="Projects and tasks to ignore during computations. 'Project' ignores all tasks from the project. 'Project___' ignores empty tasks. 'Project___Task' ignore the given task.",
+            default=[],
+            nargs="+",
+            type=str,
+        )
+        parser.add_argument(
             "-r",
             "--rename-project",
             dest="projects_rename",
@@ -110,6 +120,7 @@ class Parser:
         self.startdate: datetime = args.startdate
         self.enddate: datetime = args.enddate
         self.tasknames: list = args.tasknames
+        self.ignored_projects: list = args.ignored_projects
         self.export: bool = args.export
         self.export_dir: str = args.export_dir
         self.rename_export: dict = dict()
